@@ -50,10 +50,10 @@ if [%EXTN%] == [.pkg.xml] (
     set INPUT=%INPUT:.wm.xml=%
     cd /D %~dp1
 ) else (
-    set INPUT_FILE=%1.pkg.xml
-    if exist "%SRC_DIR%\Packages\%1\%1.pkg.xml" (
+    set INPUT_FILE=%1.wm.xml
+    if exist "%SRC_DIR%\Packages\%1\%1.wm.xml" (
         cd /D "%SRC_DIR%\Packages\%1"
-    ) else if exist "%COMMON_DIR%\Packages\%1\%1.pkg.xml" (
+    ) else if exist "%COMMON_DIR%\Packages\%1\%1.wm.xml" (
         cd /D "%COMMON_DIR%\Packages\%1"
     ) else (
         echo Error : %1 is not a valid input.
@@ -86,7 +86,7 @@ if not exist "%INPUT%.wm.xml" (
 
 set BUILDTIME=%date:~-2,2%%date:~4,2%%date:~7,2%-%time:~0,2%%time:~3,2%
 
-call pkggen.exe "%INPUT%.wm.xml" /output:"%PKGBLD_DIR%" /version:%PKG_VER% /build:fre /cpu:%BSP_ARCH% /variables:"_RELEASEDIR=%RELEASE_DIR%\;PROD=%PRODUCT%;PRJDIR=%SRC_DIR%;COMDIR=%COMMON_DIR%;BSPVER=%PKG_VER%;BSPARCH=%BSP_ARCH%;OEMNAME=%OEM_NAME%;BUILDTIME=%BUILDTIME%;" /onecore /universalbsp
+call pkggen.exe "%INPUT%.wm.xml" /output:"%PKGBLD_DIR%" /version:%PKG_VER% /build:fre /cpu:%BSP_ARCH% /variables:"_RELEASEDIR=%RELEASE_DIR%\;PROD=%PRODUCT%;PRJDIR=%SRC_DIR%;COMDIR=%COMMON_DIR%;BSPVER=%PKG_VER%;BSPARCH=%BSP_ARCH%;OEMNAME=%OEM_NAME%;BUILDTIME=%BUILDTIME%;BLDDIR=%BLD_DIR%" /onecore /universalbsp
 
 if errorlevel 0 (
     echo Package creation completed
