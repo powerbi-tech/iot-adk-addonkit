@@ -18,10 +18,6 @@ exit /b 1
 
 :START
 
-if /i "%ADK_VERSION%" LSS "16211" (
-    echo.%CLRRED%Error: ADK version %ADK_VERSION% does not support this. This feature is supported from ADK version 16212 or above.%CLREND%
-    exit /b 1
-)
 
 pushd
 setlocal ENABLEDELAYEDEXPANSION
@@ -40,7 +36,7 @@ if [%1] == [] goto Usage
 
 REM Add variables for pkg2wm
 set PKGGEN_VAR=_RELEASEDIR=$(_RELEASEDIR);PROD=$(PROD);PRJDIR=$(PRJDIR);COMDIR=$(COMDIR);BSPVER=$(BSPVER)
-set PKGGEN_VAR=%PKGGEN_VAR%;BSPARCH=$(BSPARCH);OEMNAME=$(OEMNAME);BUILDTIME=$(BUILDTIME)
+set PKGGEN_VAR=%PKGGEN_VAR%;BSPARCH=$(BSPARCH);OEMNAME=$(OEMNAME);BUILDTIME=$(BUILDTIME);BLDDIR=%BLD_DIR%
 REM if you encounter the following error, add the symbol here
 REM (PkgBldr.Common) : error : Undefined variable runtime.clipAppLicenseInstall
 set PKGGEN_VAR=%PKGGEN_VAR%;runtime.clipAppLicenseInstall=$(runtime.clipAppLicenseInstall)
@@ -107,7 +103,11 @@ if %~z1 gtr 0 (
        REM echo Name: !NAME!
        call pkggen.exe "%%i" /convert:pkg2wm /output:"!NAME!.wm.xml" /useLegacyName:true /foroempkg:true /variables:"%PKGGEN_VAR%" >nul
        if not errorlevel 0 ( echo.%CLRRED%Error : Failed to create package. See %PKGLOG_DIR%\%%~ni.log%CLREND%)
+       REM Rename the pkg.xml file to _pkg.xml file
+       move "%%i" "!NAME!._pkg.xml" >nul
     )
+) else (
+    echo. No .pkg.xml files found.
 )
 
 exit /b
