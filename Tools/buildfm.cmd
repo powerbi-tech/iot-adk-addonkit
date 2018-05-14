@@ -42,8 +42,8 @@ if /I [%1] ==[oem] (
     call :BUILDFM_BSP %2
 ) else if /I [%1] == [OCP] (
     if [%2] == [] goto Usage
-    if /i not exist %SRC_DIR%\Products\%2\CUSConfig (
-        echo.%CLRRED%Error : %2\CUSConfig does not exist%CLREND%
+    if /i not exist %SRC_DIR%\Products\%2\Packages\CUSConfig (
+        echo.%CLRRED%Error : %2\Packages\CUSConfig does not exist%CLREND%
         goto Usage
     )
     call :PKG_VERSION %3
@@ -61,6 +61,9 @@ del %PKGBLD_DIR%\*.spkg >nul 2>nul
 del %PKGBLD_DIR%\*.merged.txt >nul 2>nul
 del %BLD_DIR%\buildfm_errors.txt >nul 2>nul
 if exist %PKGLOG_DIR%\bsplist.txt ( del %PKGLOG_DIR%\bsplist.txt )
+
+del %TMP%\* /S /Q >nul 2>nul
+for /d %%x in (%TMP%\*) do @rd /s /q "%%x" >nul 2>nul
 
 endlocal
 exit /b
@@ -119,9 +122,9 @@ exit /b 0
 echo.Running FeatureMerger for %1 OCP packages 
 echo.  Exporting OCPUpdateFM files
 
-powershell -Command "(gc "%IOTADK_ROOT%\Templates\ocpupdate\OCPUpdateFM.xml") -replace '%%PKGBLD_DIR%%', '%PKGBLD_DIR%' -replace '%%OEM_NAME%%', '%OEM_NAME%' | Out-File %BLD_DIR%\InputFMs\OCPUpdateFM.xml -Encoding utf8"
+powershell -Command "(gc "%TEMPLATES_DIR%\ocpupdate\OCPUpdateFM.xml") -replace '%%PKGBLD_DIR%%', '%PKGBLD_DIR%' -replace '%%OEM_NAME%%', '%OEM_NAME%' | Out-File %BLD_DIR%\InputFMs\OCPUpdateFM.xml -Encoding utf8"
 
-powershell -Command "(gc %IOTADK_ROOT%\Templates\ocpupdate\OCPUpdateFMFileList.xml) -replace 'OEM_NAME', '%OEM_NAME%' -replace 'CPU_TYPE', '%CPUTYPE%' | Out-File %BLD_DIR%\InputFMs\OCPUpdateFMFileList.xml -Encoding utf8"
+powershell -Command "(gc %TEMPLATES_DIR%\ocpupdate\OCPUpdateFMFileList.xml) -replace 'OEM_NAME', '%OEM_NAME%' -replace 'CPU_TYPE', '%CPUTYPE%' | Out-File %BLD_DIR%\InputFMs\OCPUpdateFMFileList.xml -Encoding utf8"
 
 echo.  Processing OCPUpdateFMFileList.xml
 FeatureMerger %BLD_DIR%\InputFMs\OCPUpdateFMFileList.xml %PKGBLD_DIR% %BSP_VERSION% %BLD_DIR%\MergedFMs /InputFMDir:%BLD_DIR%\InputFMs /Languages:en-us /Resolutions:1024x768 /ConvertToCBS /variables:_cputype=%BSP_ARCH%;buildtype=fre;releasetype=production > %BLD_DIR%\buildfm_ocp.log

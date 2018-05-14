@@ -74,6 +74,9 @@ echo. Processing %SOCNAME% device layout in %BSP% bsp...
 REM Creating WinPE script always to ensure that there is no stale generated files
 echo Creating WinPE.wim
 call newwinpe.cmd %BSP% %SOCNAME%
+if not exist %BLD_DIR%\%PRODUCT% ( mkdir %BLD_DIR%\%PRODUCT% )
+if exist %BLD_DIR%\%PRODUCT%\winpe.wim ( del %BLD_DIR%\%PRODUCT%\winpe.wim )
+move %WINPEDIR%\winpe.wim %BLD_DIR%\%PRODUCT%\winpe.wim
 if %errorlevel% neq 0 goto END
 
 if not exist "%IMG_FILE%" (
@@ -161,8 +164,8 @@ if /I [%WIMMODE%] == [Import] (
     )
 )
 echo Copying winpe.wim..
-copy %WINPEDIR%\winpe.wim %MMOSDIR% >nul
-copy "%IOTADK_ROOT%\Templates\startrecovery.cmd" %MMOSDIR% >nul
+copy %BLD_DIR%\%PRODUCT%\winpe.wim %MMOSDIR% >nul
+copy "%TEMPLATES_DIR%\startrecovery.cmd" %MMOSDIR% >nul
 
 if exist %SRC_DIR%\BSP\%BSP%\tools\br_addfiles.cmd (
    echo. Adding %BSP% specifics 
