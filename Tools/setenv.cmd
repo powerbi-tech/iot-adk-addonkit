@@ -64,9 +64,7 @@ set BLD_DIR=%IOTADK_ROOT%\Build\%BSP_ARCH%
 set PKGBLD_DIR=%BLD_DIR%\pkgs
 set PKGLOG_DIR=%PKGBLD_DIR%\logs
 set TOOLS_DIR=%IOTADK_ROOT%\Tools
-set TMP=%BLD_DIR%\Temp
-set TEMP=%BLD_DIR%\Temp
-if not exist %TMP% ( mkdir %TMP% )
+
 
 REM Set the location of the BSP packages, currently set to the build folder. Override this to point to actual location.
 if not defined BSPPKG_DIR (

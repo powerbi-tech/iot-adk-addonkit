@@ -127,8 +127,5 @@ echo "CreateImage %1 %2" failed with error %ERRORLEVEL%
 exit /b 1
 
 :End
-del %TMP%\* /S /Q >nul
-for /d %%x in (%TMP%\*) do @rd /s /q "%%x"
-
 endlocal
 exit /b 0
