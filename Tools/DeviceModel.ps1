@@ -43,22 +43,22 @@ if (Test-Path $smbioscfg) {
             switch ($parts[1]) {
                 '04' {
                     $Manufacturer = $parts[3] -replace '"', ""
-                    Write-Output "Manufacturer : $Manufacturer"
+                    Write-Host "Manufacturer : $Manufacturer"
                     break
                 }
                 '05' {
                     $ProductName = $parts[3] -replace '"', ""
-                    Write-Output "Product Name : $ProductName"
+                    Write-Host "Product Name : $ProductName"
                     break
                 }
                 '19' {
                     $SKUNumber = $parts[3] -replace '"', ""
-                    Write-Output "SKU Number   : $SKUNumber"
+                    Write-Host "SKU Number   : $SKUNumber"
                     break
                 }
                 '1A' {
                     $Family = $parts[3] -replace '"', ""
-                    Write-Output "Family       : $Family"
+                    Write-Host "Family       : $Family"
                     break
                 }
             }
@@ -72,7 +72,7 @@ $xmlwriter.Indentation = 4
 $xmlwriter.WriteStartDocument()
 $xmlwriter.WriteStartElement("DeviceInventory")
 $xmlwriter.WriteAttributeString("SchemaVersion", "1")
-$xmlwriter.WriteAttributeString("BuildArch", $arch)
+$xmlwriter.WriteAttributeString("BuildArch", $env:BSP_ARCH)
 $xmlwriter.WriteAttributeString("OSString", $corekitver)
 $xmlwriter.WriteAttributeString("OCPString", $env:BSP_VERSION)
 $xmlwriter.WriteStartElement("MachineInfo")
@@ -81,7 +81,7 @@ if ($Manufacturer) {
 }
 else {
     if (!$Silent) {
-        $usrinput = Read-Host("Enter Manufacturer           ")
+        $usrinput = Read-Host("Enter Manufacturer               ")
     }
     else { $usrinput = $env:OEM_NAME }
 } 
@@ -91,7 +91,7 @@ if ($Family) {
 }
 else {
     if (!$Silent) {
-        $usrinput = Read-Host("Enter Family           ")
+        $usrinput = Read-Host("Enter Family                     ")
     }
     else { $usrinput = $env:OEM_NAME + "Family" }
 }
@@ -108,19 +108,19 @@ if ($SKUNumber) {
 }
 else {
     if (!$Silent) {
-        $usrinput = Read-Host("Enter SKUNumber           ")
+        $usrinput = Read-Host("Enter SKUNumber                  ")
     }
     else { $usrinput = $productname + "01" }
 }
 $xmlwriter.WriteAttributeString("SKUNumber", $usrinput)
 $usrinput = "Fabrikam"
 if (!$Silent) {
-    $usrinput = Read-Host("Enter BaseboardManufacturer  ")
+    $usrinput = Read-Host("Enter BaseboardManufacturer      ")
 }
 $xmlwriter.WriteAttributeString("BaseboardManufacturer", $usrinput)
 $usrinput = $productname + "_v01"
 if (!$Silent) {
-    $usrinput = Read-Host("Enter BaseboardProduct (HWvID) ")
+    $usrinput = Read-Host("Enter BaseboardProduct (HWvID)   ")
 }
 $xmlwriter.WriteAttributeString("BaseboardProduct", $usrinput)
 $xmlwriter.WriteEndElement() # MachineInfo element
