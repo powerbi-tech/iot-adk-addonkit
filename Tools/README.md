@@ -19,8 +19,8 @@ Install the following pre-requisites
 * [Windows Assessment and Deployment Kit](https://developer.microsoft.com/windows/hardware/windows-assessment-deployment-kit) including Windows PE add-on for the adk
 * Get your BSP for your platform. See [Windows 10 IoT Core BSPs](https://docs.microsoft.com/en-us/windows-hardware/manufacture/iot/bsphardware) for links to get the BSPs.
 * Certificates - You will need to have these certificates (with private keys) in the local cert store ( either directly installed or loaded from a smart card)
-  * Code signing certificate from a CA : Required for building retail image
-  * Code signing EV certificate from a CA : Required to use Device Update Center
+  * Code signing certificate from a CA : Required for signing your drivers for building retail image
+  * Code signing EV certificate from a CA : Required to register with Device Update Center and sign payload for submission
   * Security certificates from self : Required for the security features.
 
 ## Create a basic image
@@ -34,7 +34,7 @@ Install the following pre-requisites
     (or) new-ws C:\MyWorkspace Contoso arm
     ```
 
-    The Workspace will be created and opened. The required packages such as Registry.Version, Custom.Cmd and Provisioning.Auto will be imported into the workspace automatically.
+    The Workspace will be created and opened. It will also import few default packages required in the workspace.
 
 3. Import the required oem packages using [Import-IoTOEMPackage](IoTCoreImaging/Docs/Import-IoTOEMPackage.md) from the sample workspace (`$env:SAMPLEWKS`). You can either import each package selectively or import all of them.
 
@@ -237,9 +237,9 @@ For testing purposes, following commands are provided to create and install the 
 
     ```powershell
      # Create Secure boot package
-    Add-IoTSecureBoot
+    Add-IoTSecureBoot -Test
     # Create Device guard package
-    Add-IoTDeviceGuard
+    Add-IoTDeviceGuard -Test
     # Create Bitlocker package
     Add-IoTBitLocker
     ```
@@ -250,11 +250,11 @@ For testing purposes, following commands are provided to create and install the 
     Add-IoTSecurityPackages
     ```
 
-5. Now that the new security packages are created, include the Security features `Sec_BitLocker`,`Sec_SecureBootTest` and `Sec_DeviceGuardTest` in the oeminputxml file.
+5. Now that the new security packages are created, include the Security features `SEC_BITLOCKER`,`SEC_SECUREBOOT_TEST` and `SEC_DEVICEGUARD_TEST` in the oeminputxml file.
     ```powershell
-    Add-IoTProductFeature MyProduct All Sec_BitLocker -OEM
-    Add-IoTProductFeature MyProduct All Sec_SecureBootTest -OEM
-    Add-IoTProductFeature MyProduct All Sec_DeviceGuardTest -OEM
+    Add-IoTProductFeature MyProduct All SEC_BITLOCKER -OEM
+    Add-IoTProductFeature MyProduct All SEC_SECUREBOOT_TEST -OEM
+    Add-IoTProductFeature MyProduct All SEC_DEVICEGUARD_TEST -OEM
     ```
 
 6. You can build the above packages using `buildpkg` command discussed earlier and create an FFU using `buildimage` command.
