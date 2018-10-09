@@ -21,9 +21,9 @@ For older releases, please use the corresponding ADK tools and iot-adk-addonkit 
 # References
 
 ## User Guides
-* [IoT Core Manufacturing Guide](https://docs.microsoft.com/windows-hardware/manufacture/iot/)
-    * [Windows ADK IoT Core Add-Ons Overview](https://go.microsoft.com/fwlink/p/?LinkId=735029)
-    * [IoT Core Add-Ons command-line options](https://docs.microsoft.com/windows-hardware/manufacture/iot/iot-core-adk-addons-command-line-options)
+* [IoT Core Manufacturing Guide](Docs/iot-core-manufacturing-guide.md)
+    * [Windows ADK IoT Core Add-Ons Overview](Docs/iot-core-adk-addons.md)
+    * [IoT Core Add-Ons command-line options](Docs//iot-core-adk-addons-command-line-options.md)
     * [IoT Core feature list](https://docs.microsoft.com/windows-hardware/manufacture/iot/iot-core-feature-list)
     * [Channel9 Video on Manufacturing Guide](https://channel9.msdn.com/events/Build/2017/B8085)
 * [Learn how to build on Windows 10 IoT Core](https://docs.microsoft.com/windows/iot-core/)
@@ -38,7 +38,7 @@ For older releases, please use the corresponding ADK tools and iot-adk-addonkit 
 
 ## BSPs
 
-See [Windows 10 IoT Core BSPs](https://docs.microsoft.com/windows/iot-core/build-your-image/createbsps)
+See [Windows 10 IoT Core BSPs](Docs/BSPHardware.md)
 
 ## Source Links
 
@@ -54,5 +54,3 @@ See [Windows 10 IoT Core BSPs](https://docs.microsoft.com/windows/iot-core/build
 * Appx.IoTCoreOnboardingTask
     * Source : [ms-iot/samples/IoTOnBoarding](https://github.com/ms-iot/samples/tree/develop/IotOnboarding)
     * Documentation : [IoTOnBoarding](https://developer.microsoft.com/windows/iot/samples/iotonboarding)
-
-
