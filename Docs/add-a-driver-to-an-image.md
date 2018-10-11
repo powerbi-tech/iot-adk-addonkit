@@ -136,7 +136,7 @@ Build and flash the image using the same procedures from [Lab 1a: Create a basic
 
 **Check to see if your driver works**
 
-1.  Use the procedures in the [Hello, Blinky! lab](https://developer.microsoft.com/windows/iot/samples/driverlab3) to test your driver.
+1.  Use the procedures in the [Toaster Driver sample](https://github.com/Microsoft/Windows-driver-samples/tree/6c1981b8504329521343ad00f32daa847fa6083a/general/toaster/toastDrv) to test your driver.
 
 ## Next steps
 
