@@ -1,6 +1,6 @@
 # Lab 1e: Add a driver to an image
 
-In this lab, we'll add the sample driver: [Hello, Blinky!](https://developer.microsoft.com/windows/iot/samples/driverlab), package it up, and deploy it to the to a Windows 10 IoT Core device.
+In this lab, we'll add the sample driver: [Toaster](https://github.com/Microsoft/Windows-driver-samples/tree/6c1981b8504329521343ad00f32daa847fa6083a/general/toaster/toastDrv), package it up, and deploy it to the to a Windows 10 IoT Core device.
 
 ## Prerequisites
 
@@ -18,11 +18,11 @@ For example, review the list of drivers in the file: \\IoT-ADK-AddonKit\\Source-
 
 ## Create your test files
 
--  Complete the exercises in [Installing The Sample Driver](https://developer.microsoft.com/windows/iot/samples/driverlab1) to build the Hello, Blinky app. You'll create three files: ACPITABL.dat, gpiokmdfdemo.inf, and gpiokmdfdemo.sys, which you'll use to install the driver.
+-  Complete the steps listed under the [Toaster Driver Sample](https://github.com/Microsoft/Windows-driver-samples/tree/6c1981b8504329521343ad00f32daa847fa6083a/general/toaster/toastDrv) to build it. You'll create two files: wdfsimple.inf and wdfsimple.sys, which you'll use to install the driver.
 
    You can also use your own IoT Core driver, so long as it doesn't conflict with the existing Board Support Package (BSP).
 
--  Copy each of the files: gpiokmdfdemo.sys, gpiokmdfdemo.inf, and ACPITABL.dat into a test folder, for example, C:\gpiokmdfdemo\.
+-  Copy each of the files: wdfsimple.inf and wdfsimple.sys into a test folder, for example, C:\wdfsimple\.
 
 ## Build a package for your driver
 
@@ -31,20 +31,17 @@ For example, review the list of drivers in the file: \\IoT-ADK-AddonKit\\Source-
 2.  Create the driver package using the .inf file as the base:
 
     ```
-    newdrvpkg C:\gpiokmdfdemo\gpiokmdfdemo.inf Drivers.HelloBlinky
+    newdrvpkg C:\wdfsimple\wdfsimple.inf Drivers.Toaster
     ```
 
-    The new folder appears at **C:\\IoT-ADK-AddonKit\\Source-&lt;arch&gt;\\Packages\\Drivers.HelloBlinky\\**.
+    The new folder appears at **C:\\IoT-ADK-AddonKit\\Source-&lt;arch&gt;\\Packages\\Drivers.Toaster\\**.
 
-3. Copy the file: ACPITABL.dat to the new folder, **C:\\IoT-ADK-AddonKit\\Source-_<arch_>\\Packages\\Drivers.HelloBlinky\\**.
 
 **Verify that the sample files are in the package**
 
-1.  Update the driver's package definition file, **C:\\IoT-ADK-AddonKit\\Source-&lt;arch&gt;\\Packages\\Drivers.HelloBlinky\\Drivers.HelloBlinky.wm.xml**.
+1.  Update the driver's package definition file, **C:\\IoT-ADK-AddonKit\\Source-&lt;arch&gt;\\Packages\\Drivers.Toaster\\Drivers.Toaster.wm.xml**.
 
     The default package definition file includes sample XML that you can modify to add your own driver files.
-
-    If necessary, add the ACPITABL.dat file as shown below.
     
     ``` xml
     <?xml version="1.0" encoding="utf-8"?>
@@ -52,29 +49,26 @@ For example, review the list of drivers in the file: \\IoT-ADK-AddonKit\\Source-
         name="HelloBlinky"
         namespace="Drivers"
         owner="$(OEMNAME)"
-        legacyName="$(OEMNAME).Drivers.HelloBlinky" xmlns="urn:Microsoft.CompPlat/ManifestSchema.v1.00">
+        legacyName="$(OEMNAME).Drivers.Toaster" xmlns="urn:Microsoft.CompPlat/ManifestSchema.v1.00">
         <onecorePackageInfo
             targetPartition="MainOS"
             releaseType="Production"
             ownerType="OEM" />
         <drivers>
             <driver>
-                <inf source="iaiogpio.inf" />
+                <inf source="wdfsimple.inf" />
             </driver>
         </drivers>
-        <files>
-            <file source="ACPITABL.dat" destinationDir="$(runtime.system32)" name="ACPITABL.dat" />
-        </files>
     </identity>
     ```
 
 2.  From the IoT Core Shell, build the package.
 
     ```
-    buildpkg Drivers.HelloBlinky
+    buildpkg Drivers.Toaster
     ```
 
-    The package is built, appearing as **C:\\IoT-ADK-AddonKit\\Build\\&lt;arch&gt;\\pkgs\\&lt;your OEM name&gt;.Drivers.HelloBlinky.cab**.
+    The package is built, appearing as **C:\\IoT-ADK-AddonKit\\Build\\&lt;arch&gt;\\pkgs\\&lt;your OEM name&gt;.Drivers.Toaster.cab**.
 
     
 ## Update your feature manifest
@@ -84,12 +78,12 @@ For example, review the list of drivers in the file: \\IoT-ADK-AddonKit\\Source-
 
 1.  Open the architecture-specific feature manifest file, **C:\\IoT-ADK-AddonKit\\Source-_<arch_>\\Packages\\OEMFM.xml**
 
-2.  Create a new PackageFile section in the XML with your package file listed and give it a new FeatureID, such as "DRIVER_HelloBlinky".
+2.  Create a new PackageFile section in the XML with your package file listed and give it a new FeatureID, such as "DRIVERS_TOASTER".
 
     ``` xml
-          <PackageFile Path="%PKGBLD_DIR%" Name="%OEM_NAME%.Drivers.HelloBlinky.cab">
+          <PackageFile Path="%PKGBLD_DIR%" Name="%OEM_NAME%.Drivers.Toaster.cab">
             <FeatureIDs>
-              <FeatureID>DRIVER_HelloBlinky</FeatureID>
+              <FeatureID>DRIVERS_TOASTER</FeatureID>
             </FeatureIDs>
           </PackageFile>
     ```
@@ -126,7 +120,7 @@ For example, review the list of drivers in the file: \\IoT-ADK-AddonKit\\Source-
       <Feature>CUSTOM_CMD</Feature>
       <Feature>PROV_AUTO</Feature>
       <Feature>CUSTOM_FilesAndRegKeys</Feature>
-      <Feature>DRIVER_HelloBlinky</Feature> 
+      <Feature>DRIVERS_TOASTER</Feature> 
     </OEM>
     ```
 
