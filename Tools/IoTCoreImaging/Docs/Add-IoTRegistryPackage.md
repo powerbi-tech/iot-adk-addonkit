@@ -1,7 +1,7 @@
 ---
 external help file: IoTCoreImaging-help.xml
 Module Name: IoTCoreImaging
-online version:
+online version: https://github.com/ms-iot/iot-adk-addonkit/blob/master/Tools/IoTCoreImaging/Docs/Add-IoTRegistryPackage.md
 schema: 2.0.0
 ---
 
@@ -17,7 +17,7 @@ Add-IoTRegistryPackage [-OutputName] <String> [-RegKeys] <String[][]> [<CommonPa
 ```
 
 ## DESCRIPTION
-This command creates a registry package directory in the Common\packages folder and generates the wm.xml file. 
+This command creates a registry package directory in the Common\packages folder and generates the wm.xml file.
 In addition to that, it also adds a feature id (OutputName) in the OEMCommonFM.xml.
 
 ## EXAMPLES
@@ -73,3 +73,6 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 See New-IoTCabPackage to build a cab file.
 
 ## RELATED LINKS
+
+[New-IoTCabPackage](New-IoTCabPackage.md)
+

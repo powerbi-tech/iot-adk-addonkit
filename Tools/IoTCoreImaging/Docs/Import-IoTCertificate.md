@@ -1,7 +1,7 @@
 ---
 external help file: IoTCoreImaging-help.xml
 Module Name: IoTCoreImaging
-online version:
+online version: https://github.com/ms-iot/iot-adk-addonkit/blob/master/Tools/IoTCoreImaging/Docs/Import-IoTCertificate.md
 schema: 2.0.0
 ---
 
@@ -24,7 +24,7 @@ For Device guard functionality, Update is mandatory.
 You will also need the following certs in the local cert store of the build machine (either installed directly or on a smart card).
 For signing purpose
  - Certificate with private key corresponding to PlatformKey
- - Certificate with private key corresponding to KeyExchangeKey 
+ - Certificate with private key corresponding to KeyExchangeKey
  For testing purposes, you can use the sample pfx files provided in the sample workspace and install them by double clicking on them.
 
 ## EXAMPLES
@@ -89,7 +89,7 @@ Accept wildcard characters: False
 
 ### -CertType
 Mandatory parameter specifying the cert type.
-The supported values are 
+The supported values are
 for secure boot  : "PlatformKey","KeyExchangeKey","Database"
 for bit locker   : "DataRecoveryAgent"
 for device guard : "Update","User","Kernel"
@@ -134,3 +134,6 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 See Add-IoT* and Import-IoT* methods.
 
 ## RELATED LINKS
+
+[New-IoTOEMCerts](New-IoTOEMCerts.md)
+

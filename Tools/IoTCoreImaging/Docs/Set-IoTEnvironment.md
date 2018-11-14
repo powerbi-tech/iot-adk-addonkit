@@ -1,7 +1,7 @@
 ---
 external help file: IoTCoreImaging-help.xml
 Module Name: IoTCoreImaging
-online version:
+online version: https://github.com/ms-iot/iot-adk-addonkit/blob/master/Tools/IoTCoreImaging/Docs/Set-IoTEnvironment.md
 schema: 2.0.0
 ---
 
@@ -17,7 +17,7 @@ Set-IoTEnvironment [[-arch] <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Reads the IoTWorkspace xml file and configures all the environment variables as per the requested architecture. 
+Reads the IoTWorkspace xml file and configures all the environment variables as per the requested architecture.
 This also exports the environment settings as SetEnvVars.cmd.
 
 ## EXAMPLES
@@ -31,7 +31,7 @@ Set-IoTEnvironment arm
 
 ### -arch
 Specifies the required architecture.
-Supported values are arm,x86 and x64.
+Supported values are arm,arm64,x86 and x64.
 
 ```yaml
 Type: String
@@ -46,7 +46,8 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
