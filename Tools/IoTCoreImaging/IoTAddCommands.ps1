@@ -107,7 +107,6 @@ function Add-IoTAppxPackage {
     # Get the dependency list
     $deppath = $appxpath
     $depfiles = @()
-    $cerfiles = @()
     $licenseid = ""
     $licensename = "$AppxName" + "_License.ms-windows-store-license"
     if (Test-Path "$appxpath\Dependencies\$env:ARCH") {
@@ -166,7 +165,40 @@ function Add-IoTAppxPackage {
 
     # Check for certificate
     if (!$SkipCert -and ($null -ne $cer )) {
-        $provxml.AddRootCertificate("$pkgdir\$($AppxName).cer")
+        $cerpkgdir = "$env:COMMON_DIR\Packages\Appx.Certs"
+        $custxml_cer = "$cerpkgdir\customizations.xml"
+        if (Test-Path $custxml_cer) {
+            $provxml_cer = New-IoTProvisioningXML "$custxml_cer"
+        }
+        else {
+            # Appx.Certs doesnt exist. Create the package here.
+            New-DirIfNotExist $cerpkgdir
+            $wmwriter = New-IoTWMWriter $cerpkgdir "Appx" "Certs" -Force
+            $wmwriter.Start($null)
+            $wmwriter.AddFiles($PROV_PATH, "`$(BLDDIR)\ppkgs\Appx.Certs.ppkg", "Appx.Certs.ppkg")
+            $wmwriter.AddFiles($PROV_PATH, "`$(BLDDIR)\ppkgs\Appx.Certs.cat", "Appx.Certs.cat")
+            $wmwriter.Finish()
+            
+            $guid = [System.Guid]::NewGuid().toString()
+            $provxml_cer = New-IoTProvisioningXML "$custxml_cer" -Create
+            $pkgconfig = @{
+                "ID"      = "$guid"
+                "Name"    = "AppxCertsProv"
+                "Version" = "1.0.0.0"
+                "Rank"    = "0"
+            }
+            $provxml_cer.SetPackageConfig($pkgconfig)
+            try {
+                $fmcommonxml = "$env:COMMON_DIR\Packages\OEMCommonFM.xml"
+                $fmcommon = New-IoTFMXML $fmcommonxml
+                $fmcommon.AddOEMPackage("%PKGBLD_DIR%", "%OEM_NAME%.Appx.Certs.cab", "Base")
+            }
+            catch {
+                $msg = $_.Exception.Message
+                Publish-Error "$msg"
+            }            
+        }
+        $provxml_cer.AddRootCertificate("$pkgdir\$($AppxName).cer")
     }
 
     # Startup app settings
