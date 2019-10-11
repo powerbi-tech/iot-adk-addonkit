@@ -35,6 +35,7 @@ if (Check-IfFullHost -eq $true) {
 . $PSScriptRoot\IoTSecurity.ps1
 . $PSScriptRoot\IoTWorkspace.ps1
 . $PSScriptRoot\IoTClassExports.ps1
+. $PSScriptRoot\IoTCEPALCommands.ps1
 
 Init-IoTWorkspace
 
@@ -95,3 +96,6 @@ New-Alias -Name 'setsignature' -Value 'Set-IoTSignature'
 New-Alias -Name 'retailsign' -Value 'Set-IoTRetailSign'
 New-Alias -Name 'gwsproducts' -Value 'Get-IoTWorkspaceProducts'
 New-Alias -Name 'gwsbsps' -Value 'Get-IoTWorkspaceBSPs'
+############ CEPAL Exports 
+New-Alias -Name 'importcepal' -Value 'Import-IoTCEPAL'
+New-Alias -Name 'addcepal' -Value 'Add-IoTCEPAL'
