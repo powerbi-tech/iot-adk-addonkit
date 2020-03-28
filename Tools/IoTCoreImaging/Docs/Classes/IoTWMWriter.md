@@ -132,6 +132,28 @@ Static: False
 Definition: Void AddFiles(String destinationDir, String source, String name)
 ```
 
+## AddFilesinDir(String destinationDir, String source, String inputDir)
+Adds all files in the directory with its source and destination values.
+
+```yaml
+Name: AddFilesinDir
+Return Type: Void
+Hidden: False
+Static: False
+Definition: Void AddFilesinDir(String destinationDir, String source, String inputDir)
+```
+
+## AddFilesinZip(String destinationDir, String source, String zipfile)
+Adds all files in the zip with its source and destination values.
+
+```yaml
+Name: AddFilesinZip
+Return Type: Void
+Hidden: False
+Static: False
+Definition: Void AddFilesinZip(String destinationDir, String source, String zipfile)
+```
+
 ## AddRegKeys(String keyName, String[][] regvalue)
 Adds a registry key specification based on the specified reg keyname and value. The RegValue is an array of array of strings with the following values (`valuename`,`value type`, `value text` ). If the RegValue is null, it just creates the key.
 

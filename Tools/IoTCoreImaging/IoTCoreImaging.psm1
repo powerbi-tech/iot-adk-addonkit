@@ -37,7 +37,7 @@ if (Check-IfFullHost -eq $true) {
 . $PSScriptRoot\IoTClassExports.ps1
 . $PSScriptRoot\IoTCEPALCommands.ps1
 
-Init-IoTWorkspace
+Invoke-IoTWorkspace
 
 ############ IoTBuildCommands Exports ##############
 New-Alias -Name 'buildfm' -Value 'New-IoTFIPPackage'
@@ -59,6 +59,10 @@ New-Alias -Name 'newcommonpkg' -Value 'Add-IoTCommonPackage'
 New-Alias -Name 'newdrvpkg' -Value 'Add-IoTDriverPackage'
 New-Alias -Name 'newprovpkg' -Value 'Add-IoTProvisioningPackage'
 New-Alias -Name 'newproduct' -Value 'Add-IoTProduct'
+New-Alias -Name 'addfile' -Value 'Add-IoTFilePackage'
+New-Alias -Name 'addreg' -Value 'Add-IoTRegistryPackage'
+New-Alias -Name 'addzip' -Value 'Add-IoTZipPackage'
+New-Alias -Name 'adddir' -Value 'Add-IoTDirPackage'
 ############ IoTClassExports Exports ##############
 New-Alias -Name 'gpfidpkgs' -Value 'Get-IoTProductPackagesForFeature'
 New-Alias -Name 'gpfids' -Value 'Get-IoTProductFeatureIDs'
@@ -85,6 +89,7 @@ New-Alias -Name 'open-ws' -Value 'Open-IoTWorkspace'
 New-Alias -Name 'importpkg' -Value 'Import-IoTOEMPackage'
 New-Alias -Name 'importproduct' -Value 'Import-IoTProduct'
 New-Alias -Name 'importbsp' -Value 'Import-IoTBSP'
+New-Alias -Name 'importps' -Value 'Import-PSCoreRelease' 
 New-Alias -Name 'copypkg' -Value 'Copy-IoTOEMPackage'
 New-Alias -Name 'copyproduct' -Value 'Copy-IoTProduct'
 New-Alias -Name 'copybsp' -Value 'Copy-IoTBSP'

@@ -39,7 +39,7 @@ class IoTWMWriter {
 
     [void] Start([string] $oemname, [string] $partition) {
         if ($this.IsWritingStarted) { Publish-Error "Writer already started" ; return }
-        if ([string]::IsNullOrWhiteSpace($partition)) {$partition = "MainOS"}
+        if ([string]::IsNullOrWhiteSpace($partition)) { $partition = "MainOS" }
         # Write the XML Decleration
         $this.WmWriter.WriteStartDocument()
         $this.WmWriter.WriteStartElement("identity")
@@ -118,6 +118,89 @@ class IoTWMWriter {
             $this.WmWriter.WriteAttributeString("name", $name)
         }
         $this.WmWriter.WriteEndElement() # file element
+    }
+
+    [void] AddFilesinZip([string] $destinationDir, [string] $source, [string] $zipfile) {
+        if (!$this.IsWritingStarted) {
+            Publish-Error "AddFilesinZip:Writer not started. Call Start()"
+            return
+        }
+
+        # Check for mandatory attributes
+        if ([string]::IsNullOrWhiteSpace($destinationDir)) {
+            Publish-Error "AddFilesinZip:destinationDir required"
+            return
+        }
+        if ([string]::IsNullOrWhiteSpace($source)) {
+            Publish-Error "AddFilesinZip:source required"
+            return
+        }
+
+        if (!(Test-Path $zipfile -PathType Leaf -Filter "*.zip")) {
+            Publish-Error "AddFilesinZip:Zip file required"
+            return
+        }
+
+        if ($this.NestedSection -ine "files") {
+            # Close the previous nested section
+            if ($null -ine $this.NestedSection) { $this.WmWriter.WriteEndElement() }
+            $this.WmWriter.WriteStartElement("files")
+            $this.NestedSection = "files"
+        }
+
+        $zip = [IO.Compression.ZipFile]::OpenRead($zipfile)
+        $zip.Entries | Where-Object { -not $_.FullName.EndsWith("\") } | ForEach-Object {
+            $destdir = Split-Path ($destinationDir + "\$_") -Parent
+            $this.WmWriter.WriteStartElement("file")
+            $this.WmWriter.WriteAttributeString("destinationDir", $destdir)
+            $this.WmWriter.WriteAttributeString("source", ($source + "\$_"))
+            $this.WmWriter.WriteEndElement() # file element
+        }
+        $zip.Dispose()
+    }
+
+    [void] AddFilesinDir([string] $destinationDir, [string] $source, [string] $inputDir) {
+        if (!$this.IsWritingStarted) {
+            Publish-Error "AddFilesinDir:Writer not started. Call Start()"
+            return
+        }
+
+        # Check for mandatory attributes
+        if ([string]::IsNullOrWhiteSpace($destinationDir)) {
+            Publish-Error "AddFilesinDir:destinationDir required"
+            return
+        }
+        if ([string]::IsNullOrWhiteSpace($source)) {
+            Publish-Error "AddFilesinDir:source required"
+            return
+        }
+
+        if (!(Test-Path $inputDir -PathType Container)) {
+            Publish-Error "AddFilesinDir:inputDir directory required"
+            return
+        }
+
+        $filesinDir = Get-ChildItem -Path $inputDir -Recurse
+        if ($filesinDir) {
+            if ($this.NestedSection -ine "files") {
+                # Close the previous nested section
+                if ($null -ine $this.NestedSection) { $this.WmWriter.WriteEndElement() }
+                $this.WmWriter.WriteStartElement("files")
+                $this.NestedSection = "files"
+            }
+
+            $filesinDir | Where-Object { (Test-Path -Path ($_.FullName) -PathType Leaf) } | ForEach-Object {
+                $relpath = $_.FullName.Replace($inputDir, "")
+                $destdir = Split-Path ($destinationDir + $relpath) -Parent
+                $this.WmWriter.WriteStartElement("file")
+                $this.WmWriter.WriteAttributeString("destinationDir", $destdir)
+                $this.WmWriter.WriteAttributeString("source", ($source + $relpath))
+                $this.WmWriter.WriteEndElement() # file element
+            }
+        }
+        else {
+            Publish-Error "$inputDir is empty"
+        }
     }
 
     [void] AddRegKeys([string] $keyName, [string[][]] $regvalue) {

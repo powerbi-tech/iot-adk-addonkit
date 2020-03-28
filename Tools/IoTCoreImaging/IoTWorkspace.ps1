@@ -3,7 +3,7 @@ This contains Workspace related functions
 #>
 . $PSScriptRoot\IoTPrivateFunctions.ps1
 
-function Init-IoTWorkspace {
+function Invoke-IoTWorkspace {
 
     $ToolsRoot = $PSScriptRoot.Replace("\Tools\IoTCoreImaging", "")
     $module = Get-Module -ListAvailable -Name IoTCoreImaging
@@ -481,6 +481,9 @@ function Write-IoTVersions {
     $pOS = Get-CimInstance Win32_OperatingSystem
 
     Publish-Status "HostOS Info : $($pOS.Caption) - $($pOS.Version) - $($pOS.MUILanguages)"
+    if (-not $pOS.Caption.Contains("Enterprise")) {
+        Publish-Error "Host OS Enterprise Edition required for using Security functions such as Device Guard"
+    }
 }
 
 function Set-IoTRetailSign {
@@ -1598,3 +1601,57 @@ function Import-QCBSP {
         }
     }
 }
+
+function Import-PSCoreRelease {
+    <#
+    .SYNOPSIS
+    Import Powershell Core Release into your workspace and update the wm xml files.
+
+    .DESCRIPTION
+    Import Powershell Core Release into your workspace and update the wm xml files.
+
+    .PARAMETER Version
+    Optional parameter, Version of Powershell Release from github.
+
+    .EXAMPLE
+    Import-PSCoreRelease  7.0.0
+
+    .NOTES
+    See https://github.com/PowerShell/PowerShell/releases for powershell releases
+
+    #>
+    Param
+    (
+        [Parameter(Position = 0, Mandatory = $false)]
+        [String]$Version
+    )
+    if ([String]::IsNullOrWhiteSpace($Version)) {
+        #defaulting to latest available GA release
+        $Version = "7.0.0"
+    }
+    $ReleaseFile = "PowerShell-$Version-win-$env:arch.zip"
+
+    $url = "https://github.com/PowerShell/PowerShell/releases/download/v$Version/$ReleaseFile"
+    $ZipFile = "$env:TMP\$ReleaseFile"
+    if (Test-Path $ZipFile) {
+        Publish-Status "$ZipFile found. Using the same file.."
+    }
+    else {
+        Publish-Status "Downloading $url"
+        try {
+            (New-Object System.Net.WebClient).DownloadFile($url, $ZipFile)
+        }
+        catch {
+            $msg = $_.Exception.Message
+            Publish-Error "$msg"
+            return
+        }
+    }
+
+    Add-IoTZipPackage $ZipFile "`$(runtime.system32)\Powershell" "OpenSrc.Powershell"
+    # Apply a patch
+    $filename = "$env:PKGSRC_DIR\OpenSrc.Powershell\Source\Install-PowerShellRemoting.ps1"
+    (Get-Content $filename) -replace 'Register-WinRmPlugin \$pluginPath \$pluginEndpointName', "Register-WinRmPlugin `$pluginPath `$pluginEndpointName `n    Register-WinRmPlugin `$pluginPath Microsoft.PowerShell" | Out-File $filename -Encoding utf8
+
+}
+

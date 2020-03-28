@@ -68,7 +68,7 @@ function Add-IoTAppxPackage {
             $txt1 = $tags[0].Trim()
             $txt2 = $tags[1].Trim()
             switch ($txt1) {
-                "File Name" { $AppxName = $txt2.SubString(0, $txt2.IndexOf("_")) ; break}
+                "File Name" { $AppxName = $txt2.SubString(0, $txt2.IndexOf("_")) ; break }
                 "Version" { $AppxVersion = $txt2; break }
                 "AppUserModelId" {
                     $text = $txt2.Split("!")
@@ -128,7 +128,7 @@ function Add-IoTAppxPackage {
     }
 
     Publish-Status "Dependencies      : $depfiles"
-    $licensexml = Get-ChildItem $appxpath -Filter *License*.xml -File | foreach-object {$_.FullName} | Select-Object -First 1
+    $licensexml = Get-ChildItem $appxpath -Filter *License*.xml -File | foreach-object { $_.FullName } | Select-Object -First 1
     if ($null -ne $licensexml) {
         Copy-Item $licensexml $pkgdir\$licensename
         $liobj = [xml] (Get-Content $licensexml)
@@ -136,7 +136,7 @@ function Add-IoTAppxPackage {
         Publish-Status "LicenseID      : $licenseid"
     }
     else {
-        $cer = Get-ChildItem $appxpath -Filter *.cer -File | foreach-object {$_.BaseName} | Select-Object -First 1
+        $cer = Get-ChildItem $appxpath -Filter *.cer -File | foreach-object { $_.BaseName } | Select-Object -First 1
         if ($null -ne $cer) {
             Copy-Item $appxpath\$($cer).cer $pkgdir\$($AppxName).cer
         }
@@ -469,16 +469,25 @@ function Add-IoTFilePackage {
     try {
         $wmwriter = New-IoTWMWriter $filedir $names[0] $names[1] -Force
         $wmwriter.Start($null)
+        $FilesArray = @()
         if ($null -ine $Files) {
-            foreach ($File in $Files) {
+            if (($Files.Count -eq 3) -and ($Files[0].Count -eq 1)) {
+                # Single entry - so add padding to make it nested array
+                $FilesArray = @(($Files), ($null, $null, $null))
+            }
+            else {
+                $FilesArray = $Files
+            }
+            foreach ($File in $FilesArray) {
+                if ([string]::IsNullOrEmpty($File[1])) { break; }
+                $srcfile = Split-Path $File[1] -Leaf
+                $destfile = $File[2]
+                if ([string]::IsNullOrWhiteSpace($File[2])) {
+                    $destfile = $srcfile
+                }
+                $wmwriter.AddFiles($File[0], $srcfile, $destfile)
                 if (Test-Path -Path $File[1] -PathType Leaf) {
                     Copy-Item -Path $File[1] -Destination $filedir -Force | Out-Null
-                    $srcfile = Split-Path $File[1] -Leaf
-                    $destfile = $File[2]
-                    if ([string]::IsNullOrWhiteSpace($File[2])) {
-                        $destfile = $srcfile
-                    }
-                    $wmwriter.AddFiles($File[0], $srcfile, $destfile)
                 }
                 else {
                     Publish-Error "$($File[1]) not found"
@@ -555,8 +564,15 @@ function Add-IoTRegistryPackage {
         $wmwriter = New-IoTWMWriter $filedir $names[0] $names[1] -Force
         $wmwriter.Start($null)
         if ($null -ine $RegKeys) {
-            foreach ($RegKey in $RegKeys) {
-                $wmwriter.AddRegKeyValue($RegKey[0], $RegKey[1], $RegKey[2], $RegKey[3])
+            if (($RegKeys.Count -eq 4) -and ($RegKeys[0].Count -eq 1)) {
+                # Single entry
+                $wmwriter.AddRegKeyValue($RegKeys[0], $RegKeys[1], $RegKeys[2], $RegKeys[3])
+            }
+            else {
+                # Multiple Entries
+                foreach ($RegKey in $RegKeys) {
+                    $wmwriter.AddRegKeyValue($RegKey[0], $RegKey[1], $RegKey[2], $RegKey[3])
+                }
             }
         }
         $wmwriter.Finish()
@@ -1286,7 +1302,7 @@ function Add-IoTBitLocker {
         $intblob = (Get-ItemProperty HKLM:\SOFTWARE\Microsoft\SystemCertificates\My\Certificates\$thumbprint).Blob
 
         # convert 'intblob' from array to 'int' to a continuous string of hex values
-        $blob = (($intblob | foreach-object {$_.ToString("x2") }) -join '')
+        $blob = (($intblob | foreach-object { $_.ToString("x2") }) -join '')
     }
     finally {
         Remove-Item -Path Cert:\LocalMachine\My\$thumbprint
@@ -1321,4 +1337,180 @@ function Add-IoTBitLocker {
         Publish-Error "$msg"
     }
     Pop-Location
+}
+
+function Add-IoTZipPackage {
+    <#
+    .SYNOPSIS
+    Adds the zip file contents into a IoT file package definition.
+
+    .DESCRIPTION
+    Adds the zip file contents into a IoT file package definition.
+
+    .PARAMETER ZipFile
+    Mandatory parameter, specifying the zipfile to be imported.
+
+    .PARAMETER TargetDir
+    Mandatory parameter specifying the directory name on the target device relative to the rood dir(C:\). 
+
+    .PARAMETER OutputName
+    Mandatory parameter specifying the directory name (namespace.name format) for importing. 
+
+    .PARAMETER Common
+    Optional switch parameter, if defined the package is created in the common folder.
+
+    .EXAMPLE
+    Add-IoTZipPackage  C:\Temp\MyFiles.zip \MyFiles Files.MyFiles
+
+    .NOTES
+    Enables easy import of opensource packages that are delivered in zip formats.
+
+    #>
+    Param
+    (
+        [Parameter(Position = 0, Mandatory = $true)]
+        [String]$ZipFile,
+        [Parameter(Position = 1, Mandatory = $true)]
+        [String]$TargetDir,
+        [Parameter(Position = 2, Mandatory = $true)]
+        [String]$OutputName,
+        [Parameter(Position = 3, Mandatory = $false)]
+        [Switch]$Common
+    )
+    if (!(Test-Path $ZipFile -PathType Leaf -Filter "*.zip")) {
+        Publish-Error "$ZipFile is not a zip file."
+        return
+    }
+    if ($TargetDir.Contains("runtime.")) {
+        # Explicit path specified. Use as is.
+        $destpath = $TargetDir
+    }
+    else {
+        # relative path specified. Add prefix.
+        if (!($TargetDir.StartsWith("\"))) {
+            $TargetDir = "\" + $TargetDir
+        }
+        $destpath = "`$(runtime.bootDrive)$TargetDir"
+    }
+    if ($Common) {
+        $pkgdir = "$env:COMMON_DIR\Packages\$OutputName"  
+        $fmxml = "$env:COMMON_DIR\Packages\OEMCOMMONFM.xml"     
+    }
+    else {
+        $pkgdir = "$env:PKGSRC_DIR\$OutputName"
+        $fmxml = "$env:PKGSRC_DIR\OEMFM.xml"
+    }
+
+    New-DirIfNotExist $pkgdir
+    Publish-Status "Writing package manifest (wm.xml) file..."
+    $namespart = $OutputName.Split(".")
+    $wmwriter = New-IoTWMWriter $pkgdir $namespart[0] $namespart[1] -Force
+
+    $wmwriter.Start($null)
+    $wmwriter.AddFilesInZip($destpath, ".\Source", $ZipFile)
+    $wmwriter.Finish()
+
+    Publish-Status "Extracting $ZipFile..."
+    Expand-Archive -Path $ZipFile -DestinationPath ($pkgdir + "\Source") -Force
+    # Update the feature manifest with this package entry
+    try {
+        $pkgname = "%OEM_NAME%." + $OutputName + ".cab"
+        $feature = $OutputName.ToUpper()
+        $feature = $feature.Replace(".", "_")
+        $fm = New-IoTFMXML $fmxml
+        $fm.AddOEMPackage("%PKGBLD_DIR%", $pkgname, $feature)
+        Publish-Success "Feature ID : $feature"
+    }
+    catch {
+        $msg = $_.Exception.Message
+        Publish-Error "$msg"
+    }
+}
+
+function Add-IoTDirPackage {
+    <#
+    .SYNOPSIS
+    Adds the directory contents into a IoT file package definition.
+
+    .DESCRIPTION
+    Adds the directory contents  into a IoT file package definition.
+
+    .PARAMETER InputDir
+    Mandatory parameter, specifying the directory contents to be added.
+
+    .PARAMETER TargetDir
+    Mandatory parameter specifying the directory name on the target device relative to the rood dir(C:\). 
+
+    .PARAMETER OutputName
+    Mandatory parameter specifying the directory name (namespace.name format) for importing. 
+
+    .PARAMETER Common
+    Optional switch parameter, if defined the package is created in the common folder.
+
+    .EXAMPLE
+    Add-IoTDirPackage C:\Temp\MyFiles \MyFiles Files.MyFiles
+
+    .NOTES
+    Enables easy add multiple files with their folder structure.
+
+    #>
+    Param
+    (
+        [Parameter(Position = 0, Mandatory = $true)]
+        [String]$InputDir,
+        [Parameter(Position = 1, Mandatory = $true)]
+        [String]$TargetDir,
+        [Parameter(Position = 2, Mandatory = $true)]
+        [String]$OutputName,
+        [Parameter(Position = 3, Mandatory = $false)]
+        [Switch]$Common
+    )
+    if (!(Test-Path $InputDir -PathType Container)) {
+        Publish-Error "$InputDir is not a valid folder"
+        return
+    }
+    if ($TargetDir.Contains("runtime.")) {
+        # Explicit path specified. Use as is.
+        $destpath = $TargetDir
+    }
+    else {
+        # relative path specified. Add prefix.
+        if (!($TargetDir.StartsWith("\"))) {
+            $TargetDir = "\" + $TargetDir
+        }
+        $destpath = "`$(runtime.bootDrive)$TargetDir"
+    }
+    if ($Common) {
+        $pkgdir = "$env:COMMON_DIR\Packages\$OutputName"  
+        $fmxml = "$env:COMMON_DIR\Packages\OEMCOMMONFM.xml"     
+    }
+    else {
+        $pkgdir = "$env:PKGSRC_DIR\$OutputName"
+        $fmxml = "$env:PKGSRC_DIR\OEMFM.xml"
+    }
+
+    New-DirIfNotExist $pkgdir
+    Publish-Status "Writing package manifest (wm.xml) file..."
+    $namespart = $OutputName.Split(".")
+    $wmwriter = New-IoTWMWriter $pkgdir $namespart[0] $namespart[1] -Force
+
+    $wmwriter.Start($null)
+    $wmwriter.AddFilesinDir($destpath, ".\Source", $InputDir)
+    $wmwriter.Finish()
+
+    Publish-Status "Copying $InputDir..."
+    Copy-Item -Path $InputDir\ -Destination ($pkgdir + "\Source") -Recurse -Force
+    # Update the feature manifest with this package entry
+    try {
+        $pkgname = "%OEM_NAME%." + $OutputName + ".cab"
+        $feature = $OutputName.ToUpper()
+        $feature = $feature.Replace(".", "_")
+        $fm = New-IoTFMXML $fmxml
+        $fm.AddOEMPackage("%PKGBLD_DIR%", $pkgname, $feature)
+        Publish-Success "Feature ID : $feature"
+    }
+    catch {
+        $msg = $_.Exception.Message
+        Publish-Error "$msg"
+    }
 }
