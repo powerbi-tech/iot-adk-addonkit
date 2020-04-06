@@ -184,7 +184,7 @@ You can add an appx, driver, provisioning package, files and registry settings t
     ```powershell
     $myfiles = @(
         ("`$(runtime.system32)","C:\Temp\TestFile1.txt", ""),
-        ("`$(runtime.bootDrive)\OEMInstall","C:\Temp\TestFile2.txt", "TestFile2.txt")
+        ("\OEMInstall","C:\Temp\TestFile2.txt", "TestFile2.txt")
         )
     Add-IoTFilePackage Files.Configs $myfiles
     ```
@@ -215,6 +215,25 @@ You can add an appx, driver, provisioning package, files and registry settings t
     ```
 
 6. You can build the above packages using `buildpkg` command discussed earlier and create an FFU using `buildimage` command.
+
+### Adding open source Powershell
+
+If you require Powershell, it is recommended to add the latest [Powershell](https://github.com/PowerShell/PowerShell#-powershell) available in the github in your images and you can do this easily with [Import-PSCoreRelease](IoTCoreImaging/Docs/Import-PSCoreRelease.md).
+
+    ```powershell
+    Import-PSCoreRelease 7.0.0
+    ```
+
+    This will download the powershell zip from the github and import the files into the workspace. It will also add a feature id `OPENSRC_POWERSHELL` in the OEMFM.xml.
+    You can add this feature to MyProduct using
+
+    ```powershell
+    # Add IOT_POWERSHELL for WinRM
+    Add-IoTProductFeature MyProduct All IOT_POWERSHELL
+    # Add Open source Powershell
+    Add-IoTProductFeature MyProduct All OPENSRC_POWERSHELL -OEM
+    (or) addfid MyProduct All OPENSRC_POWERSHELL -OEM
+    ```
 
 ### Adding security packages
 
@@ -423,8 +442,8 @@ The supported commands are listed below in logical groups.
 |[Add-IoTAppxPackage](IoTCoreImaging/Docs/Add-IoTAppxPackage.md) | newappxpkg | Creates Appx OEM package and adds featureID to OEMFM.xml |
 |[Add-IoTDriverPackage](IoTCoreImaging/Docs/Add-IoTDriverPackage.md) | newdrvpkg | Creates Driver OEM package and adds featureID to OEMFM.xml |
 |[Add-IoTCommonPackage](IoTCoreImaging/Docs/Add-IoTCommonPackage.md) | newcommonpkg | Creates common (file/reg) OEM package and adds featureID to OEMCOMMONFM.xml |
-|[Add-IoTFilePackage](IoTCoreImaging/Docs/Add-IoTFilePackage.md) | - | Adds a file package and adds the featureID to OEMCOMMONFM.xml  |
-|[Add-IoTRegistryPackage](IoTCoreImaging/Docs/Add-IoTRegistryPackage.md) | - | Adds a registry package and adds the featureID to OEMCOMMONFM.xml |
+|[Add-IoTFilePackage](IoTCoreImaging/Docs/Add-IoTFilePackage.md) | addfile | Adds a file package and adds the featureID to OEMCOMMONFM.xml  |
+|[Add-IoTRegistryPackage](IoTCoreImaging/Docs/Add-IoTRegistryPackage.md) | addreg | Adds a registry package and adds the featureID to OEMCOMMONFM.xml |
 |[Add-IoTProvisioningPackage](IoTCoreImaging/Docs/Add-IoTProvisioningPackage.md) | newprovpkg | Adds provisioning oem package and adds the featureID to OEMCOMMONFM.xml |
 |[Add-IoTBSP](IoTCoreImaging/Docs/Add-IoTBSP.md) | newbsp | Adds new bsp based on a template |
 |[Add-IoTProduct](IoTCoreImaging/Docs/Add-IoTProduct.md) | newproduct | Adds new product based on the OEMInputSamples from BSP  |
@@ -437,8 +456,8 @@ The supported commands are listed below in logical groups.
 |[Add-IoTCEPAL](IoTCoreImaging/Docs/Add-IoTCEPAL.md) | addcepal  | **Preview:** Adds CEPALFM.xml into the Test and Retail OEMInput.xml files for product. See [CE Migration](https://aka.ms/cemigration) for more details |
 |[Import-IoTCEPAL](IoTCoreImaging/Docs/Import-IoTCEPAL.md) | importcepal  | **Preview:** This command copies $FlatReleaseDirectory\CEPAL_PKG into the workspace and generates CEPALFMFileList.xml. See [CE Migration](https://aka.ms/cemigration) for more details |
 |[Import-PSCoreRelease](IoTCoreImaging/Docs/Import-PSCoreRelease.md) | importps  | This command imports Open source Powershell release from github into the workspace |
-|[Add-IoTZipPackage](IoTCoreImaging/Docs/Add-IoTZipPackage.md) | - | This command adds all file contents in the zip file into a file package in the workspace |
-|[Add-IoTDirPackage](IoTCoreImaging/Docs/Add-IoTDirPackage.md) | - | This command adds all file contents in the directory into a file package in the workspace |
+|[Add-IoTZipPackage](IoTCoreImaging/Docs/Add-IoTZipPackage.md) | addzip | This command adds all file contents in the zip file into a file package in the workspace |
+|[Add-IoTDirPackage](IoTCoreImaging/Docs/Add-IoTDirPackage.md) | adddir | This command adds all file contents in the directory into a file package in the workspace |
 
 ### Build commands
 
