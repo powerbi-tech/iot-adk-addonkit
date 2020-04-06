@@ -30,14 +30,14 @@ Import Powershell Core Release into your workspace and update the wm xml files.I
 ## EXAMPLES
 
 ### EXAMPLE 1
-    ```powershell
+```powershell
     Import-PSCoreRelease 7.0.0
     # Add IOT_POWERSHELL for WinRM
     Add-IoTProductFeature MyProduct All IOT_POWERSHELL
     # Add Open source Powershell
     Add-IoTProductFeature MyProduct All OPENSRC_POWERSHELL -OEM
     (or) addfid MyProduct All OPENSRC_POWERSHELL -OEM
-    ```
+```
 
 ## PARAMETERS
 
